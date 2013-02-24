@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://texturepacker.com-->
+<!-- $TexturePacker:SmartUpdate:d3cacb1f5476a32a82d28ad5a57ac142$ -->
+<!--Format:
+n  => name of the sprite
+x  => sprite x pos in texture
+y  => sprite y pos in texture
+w  => sprite width (may be trimmed)
+h  => sprite height (may be trimmed)
+oX => sprite's x-corner offset (only available if trimmed)
+oY => sprite's y-corner offset (only available if trimmed)
+oW => sprite's original width (only available if trimmed)
+oH => sprite's original height (only available if trimmed)
+r => 'y' only set if sprite is rotated
+-->
+<TextureAtlas imagePath="insects.png" width="2048" height="2048">
+    <sprite n="Myra'Vey_RED_move1.psd" x="2" y="2" w="480" h="270"/>
+    <sprite n="Myra'Vey_RED_move2.psd" x="2" y="274" w="428" h="248" oX="51" oY="0" oW="480" oH="270"/>
+    <sprite n="Myra'Vey_RED_move3.psd" x="940" y="248" w="430" h="248" oX="49" oY="1" oW="480" oH="270"/>
+    <sprite n="Myra'Vey_RED_move4.psd" x="432" y="494" w="428" h="246" oX="51" oY="0" oW="480" oH="270"/>
+    <sprite n="Myra'vey_BLC_move1.psd" x="484" y="248" w="454" h="244" oX="25" oY="1" oW="480" oH="270"/>
+    <sprite n="Myra'vey_BLC_move2.psd" x="1406" y="2" w="454" h="246" oX="25" oY="1" oW="480" oH="270"/>
+    <sprite n="Myra'vey_BLC_move3.psd" x="484" y="2" w="460" h="244" oX="19" oY="1" oW="480" oH="270"/>
+    <sprite n="Myra'vey_BLC_move4.psd" x="946" y="2" w="458" h="244" oX="21" oY="1" oW="480" oH="270"/>
+    <sprite n="Tarak'An_move1.psd" x="1372" y="250" w="296" h="254" oX="183" oY="0" oW="480" oH="270"/>
+    <sprite n="Tarak'An_move2.psd" x="2" y="524" w="310" h="244" oX="169" oY="1" oW="480" oH="270"/>
+    <sprite n="Tarak'An_move3.psd" x="1670" y="250" w="292" h="262" oX="187" oY="0" oW="480" oH="270"/>
+    <sprite n="Tarak'An_move4.psd" x="862" y="498" w="292" h="246" oX="187" oY="1" oW="480" oH="270"/>
+</TextureAtlas>
