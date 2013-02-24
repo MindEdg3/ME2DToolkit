@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class AnimatedSprite : MonoBehaviour
+public class AnimatedSprite : MESprite
 {
 	public AnimationSequence framesSequence;
 	public MeshRenderer renderTarget;
@@ -22,7 +22,7 @@ public class AnimatedSprite : MonoBehaviour
 	}
 
 	// Use this for initialization
-	void Start ()
+	public override void Start ()
 	{		
 		if (renderTarget == null) {
 			renderTarget = transform.GetComponentInChildren<MeshRenderer> ();
@@ -39,7 +39,7 @@ public class AnimatedSprite : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void Update ()
+	public override void Update ()
 	{
 #if UNITY_EDITOR
 		if (!Application.isPlaying) {

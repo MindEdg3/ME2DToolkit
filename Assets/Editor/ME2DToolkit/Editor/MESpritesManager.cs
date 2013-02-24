@@ -8,23 +8,27 @@ public class MESpritesManager : EditorWindow
 	public AnimationSequence framesSequence;
 	public string errorMessage = "";
 	private ObjectType selectedObjectOption;
+	private float scaleMultiplier = 1f;
+	private FramesMap framesMap;
 	private Texture2D atlas;
-	private GUIStyle errorLabelStyle = new GUIStyle () {
-		name = "ErrorLabel",
-		normal = {
-			textColor = Color.red
-		}
-	};
 	
 	[MenuItem("Window/MEAnimation/Sprites Manager %#m")]
 	static void OpenWindow ()
 	{
 	
-		EditorWindow.GetWindow (typeof(MESpritesManager));
+		EditorWindow.GetWindow<MESpritesManager> ("Sprites Manager");
 	}
+	
+	/*void OnFocus ()
+	{
+		errorLabelStyle.name = "ErrorLabel";
+		errorLabelStyle.normal.textColor = Color.red;
+		errorLabelStyle.margin = new RectOffset (4, 4, 4, 4);
+	}*/
 	
 	void OnGUI ()
 	{
+		
 		///
 		/// Objects
 		/// 
@@ -34,23 +38,24 @@ public class MESpritesManager : EditorWindow
 		
 		switch (selectedObjectOption) {
 		case ObjectType.SimpleSprite:
+			DrawScaleMultiplier ();
 			break;
 		case ObjectType.AnimatedSprite:
-			GameObject selectedSequenceGO = EditorGUILayout.ObjectField ("Animation Sequence:", framesSequence, typeof(GameObject), false) as GameObject;
-			if (selectedSequenceGO != null) {
-				framesSequence = selectedSequenceGO.GetComponent<AnimationSequence> ();
-			}
+			DrawScaleMultiplier ();
+			DrawAnimSequenceSelector ();
 			break;
 		}
-		
-		if (GUILayout.Button ("Create")) {
+		GUI.color = Color.green;
+		if (GUILayout.Button ("Add")) {
 			CreateObject (selectedObjectOption);
 		}
 		
+		GUI.color = Color.red;
 		if (!string.IsNullOrEmpty (errorMessage)) {
 			EditorGUILayout.Space ();
-			GUILayout.Label ("  " + errorMessage, errorLabelStyle);
+			GUILayout.Label ("" + errorMessage);
 		}
+		GUI.color = Color.white;
 		
 		EditorGUILayout.Space ();
 		
@@ -61,10 +66,28 @@ public class MESpritesManager : EditorWindow
 		if (GUILayout.Button ("Atlas Maker")) {
 			EditorWindow.GetWindow (typeof(AtlasMaker));
 		}
-		if (GUILayout.Button ("Bake Scales")) {
+		if (GUILayout.Button ("Bake Scales (Shift+B)")) {
 			MESpritesManager.BakeScales ();
 		}
 	}
+	
+	#region GUI elements
+	private void DrawScaleMultiplier ()
+	{
+		float _scaleMultiplier = EditorGUILayout.FloatField ("Scale Multiplier", scaleMultiplier);
+		if (_scaleMultiplier > 0) {
+			scaleMultiplier = _scaleMultiplier;
+		}
+	}
+	
+	private void DrawAnimSequenceSelector ()
+	{
+		GameObject selectedSequenceGO = EditorGUILayout.ObjectField ("Animation Sequence:", framesSequence, typeof(GameObject), false) as GameObject;
+		if (selectedSequenceGO != null) {
+			framesSequence = selectedSequenceGO.GetComponent<AnimationSequence> ();
+		}
+	}
+	#endregion
 	
 	void CreateObject (ObjectType oType)
 	{
