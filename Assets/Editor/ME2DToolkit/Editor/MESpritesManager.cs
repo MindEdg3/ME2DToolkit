@@ -8,14 +8,15 @@ public class MESpritesManager : EditorWindow
 	public AnimationSequence framesSequence;
 	public string errorMessage = "";
 	private ObjectType selectedObjectOption;
-	private float scaleMultiplier = 1f;
+	private SpriteHorizontalAlignment horizontalSpriteAlignment;
+	private SpriteVerticalAlignment verticalSpriteAlignment;
+	private float scale = 1f;
 	private FramesMap framesMap;
 	private Texture2D atlas;
 	
 	[MenuItem("Window/MEAnimation/Sprites Manager %#m")]
 	static void OpenWindow ()
 	{
-	
 		EditorWindow.GetWindow<MESpritesManager> ("Sprites Manager");
 	}
 	
@@ -38,10 +39,10 @@ public class MESpritesManager : EditorWindow
 		
 		switch (selectedObjectOption) {
 		case ObjectType.SimpleSprite:
-			DrawScaleMultiplier ();
+			DrawScale ();
 			break;
 		case ObjectType.AnimatedSprite:
-			DrawScaleMultiplier ();
+			DrawScale ();
 			DrawAnimSequenceSelector ();
 			break;
 		}
@@ -72,11 +73,17 @@ public class MESpritesManager : EditorWindow
 	}
 	
 	#region GUI elements
-	private void DrawScaleMultiplier ()
+	private void DrawAlignment ()
 	{
-		float _scaleMultiplier = EditorGUILayout.FloatField ("Scale Multiplier", scaleMultiplier);
-		if (_scaleMultiplier > 0) {
-			scaleMultiplier = _scaleMultiplier;
+		horizontalSpriteAlignment = (SpriteHorizontalAlignment)EditorGUILayout.EnumPopup ("Horizontal Alignment", horizontalSpriteAlignment);
+		verticalSpriteAlignment = (SpriteVerticalAlignment)EditorGUILayout.EnumPopup ("Vertical Alignment", verticalSpriteAlignment);
+	}
+	
+	private void DrawScale ()
+	{
+		float _scale = EditorGUILayout.FloatField ("Scale", scale);
+		if (_scale > 0) {
+			scale = _scale;
 		}
 	}
 	
@@ -92,12 +99,19 @@ public class MESpritesManager : EditorWindow
 	void CreateObject (ObjectType oType)
 	{
 		GameObject newGO = new GameObject ();
+		MeshRenderer graphics;
 		newGO.active = false;
+		graphics = newGO.AddComponent<MeshRenderer> ();
+		newGO.AddComponent<MeshFilter> ();
+		graphics.castShadows = false;
+		graphics.receiveShadows = false;
 		
 		switch (oType) {
 		case ObjectType.SimpleSprite:
 			newGO.name = "Simple 2D Sprite";
 			MESprite newSS = newGO.AddComponent<MESprite> ();
+			newSS.RenderTarget = graphics;
+			newSS.Scale = scale;
 			break;
 		case ObjectType.AnimatedSprite:
 			if (framesSequence == null) {
@@ -105,21 +119,17 @@ public class MESpritesManager : EditorWindow
 				errorMessage = "Set FramesSequence!";
 				return;
 			} else {
-				newGO.name = "Animated Sprite";
+				newGO.name = "Animation (" + framesSequence.gameObject.name + ")";
 				AnimatedSprite newAS = newGO.AddComponent<AnimatedSprite> ();
 				newAS.framesSequence = this.framesSequence;
-				MeshRenderer graphics = new GameObject ("graphics").AddComponent<MeshRenderer> ();
-				graphics.gameObject.AddComponent<MeshFilter> ();
-				graphics.transform.parent = newGO.transform;
-				graphics.castShadows = false;
-				graphics.receiveShadows = false;
-				newGO.name = "Animation (" + framesSequence.gameObject.name + ")";
-				newAS.renderTarget = graphics;
+				newAS.RenderTarget = graphics;
+				newAS.Scale = scale;
 				break;
 			}
 		}
 		
 		errorMessage = "";
+		Selection.activeGameObject = newGO;
 		newGO.active = true;
 	}
 	

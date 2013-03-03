@@ -6,7 +6,6 @@ public class AnimationSequence : MonoBehaviour
 {
 	public float speed = 1f;
 	public List<AnimFrame> frames = new List<AnimFrame> ();
-	public FramesMap framesMap;
 }
 
 [Serializable]

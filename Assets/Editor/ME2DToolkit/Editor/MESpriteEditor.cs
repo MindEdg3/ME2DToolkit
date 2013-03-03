@@ -2,8 +2,12 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
+/// <summary>
+/// Sprite editor GUI for inspector.
+/// </summary>
 [CustomEditor(typeof(MESprite))]
-public class MEObjectEditor : Editor
+[CanEditMultipleObjects]
+public class MESpriteEditor : Editor
 {
 	private int selectedFrameIndex;
 	private SpriteBounds _frameBoundaries;
@@ -23,26 +27,6 @@ public class MEObjectEditor : Editor
 			return _mySprite;
 		}
 	}
-
-	/// <summary>
-	/// Gets or sets the name of the frame.
-	/// </summary>
-	/// <value>
-	/// The name of the frame.
-	/// </value>
-	private string FrameName {
-		get {
-			return MySprite.frameName;
-		}
-		set {
-			MySprite.frameName = value;
-			FrameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
-			string[] frameNames = new string[MyFramesMap.spriteBounds.Count];
-			for (int i = 0; i< frameNames.Length; i++) {
-				frameNames [i] = MyFramesMap.spriteBounds [i].name;
-			}
-		}
-	}
 	
 	/// <summary>
 	/// Gets or sets the frame boundaries.
@@ -53,7 +37,7 @@ public class MEObjectEditor : Editor
 	private SpriteBounds FrameBoundaries {
 		get {
 			if (_frameBoundaries == null) {
-				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
+				_frameBoundaries = MySprite.MyFramesMap.spriteBounds.Find (sb => sb.name == MySprite.FrameName);
 			}
 			return _frameBoundaries;
 		}
@@ -63,41 +47,32 @@ public class MEObjectEditor : Editor
 	}
 	
 	/// <summary>
-	/// Gets or sets my frames map.
-	/// </summary>
-	/// <value>
-	/// My frames map.
-	/// </value>
-	private FramesMap MyFramesMap {
-		get {
-			return MySprite.framesMap;
-		}
-		set {
-			MySprite.framesMap = value;
-		}	
-	}
-	
-	/// <summary>
 	/// Creates custom inspector elements.
 	/// </summary>/
 	public override void OnInspectorGUI ()
 	{
-		GameObject selectedMapGO = EditorGUILayout.ObjectField ("Frame Map", MyFramesMap, typeof(GameObject), false) as GameObject;
+		MySprite.HorizontalSpriteAlignment = (SpriteHorizontalAlignment)EditorGUILayout.EnumPopup ("Horizontal Alignment", MySprite.HorizontalSpriteAlignment);
+		MySprite.VerticalSpriteAlignment = (SpriteVerticalAlignment)EditorGUILayout.EnumPopup ("Vertical Alignment", MySprite.VerticalSpriteAlignment);
+		
+		GameObject selectedMapGO = EditorGUILayout.ObjectField ("Frame Map", MySprite.MyFramesMap, typeof(GameObject), false) as GameObject;
 		if (selectedMapGO != null) {
-			MyFramesMap = selectedMapGO.GetComponent<FramesMap> ();
+			FramesMap _fm = selectedMapGO.GetComponent<FramesMap> ();
+			if (_fm != null) {
+				MySprite.MyFramesMap = _fm; 
+			}
 		}
 		
-		if (MyFramesMap != null) {
-			string[] frameNames = new string[MyFramesMap.spriteBounds.Count];
+		if (MySprite.MyFramesMap != null) {
+			string[] frameNames = new string[MySprite.MyFramesMap.spriteBounds.Count];
 			for (int i = 0; i< frameNames.Length; i++) {
-				frameNames [i] = MyFramesMap.spriteBounds [i].name;
-				if (frameNames [i].Equals (FrameName)) {
+				frameNames [i] = MySprite.MyFramesMap.spriteBounds [i].name;
+				if (frameNames [i].Equals (MySprite.FrameName)) {
 					selectedFrameIndex = i;
 				}
 			}
 			selectedFrameIndex = EditorGUILayout.Popup ("Frame Name", selectedFrameIndex, frameNames);
-			if (!FrameName.Equals (MyFramesMap.spriteBounds [selectedFrameIndex].name)) {
-				FrameName = MyFramesMap.spriteBounds [selectedFrameIndex].name;
+			if (!MySprite.FrameName.Equals (MySprite.MyFramesMap.spriteBounds [selectedFrameIndex].name)) {
+				MySprite.FrameName = MySprite.MyFramesMap.spriteBounds [selectedFrameIndex].name;
 			}
 			GUILayout.Button ("Bake Scale");
 			
@@ -112,7 +87,7 @@ public class MEObjectEditor : Editor
 					Screen.width - 32f,
 					(Screen.width - 32f) * FrameBoundaries.textureScale.y / FrameBoundaries.textureScale.x
 				),
-				MyFramesMap.atlas.mainTexture,
+				MySprite.MyFramesMap.atlas.mainTexture,
 				new Rect (
 					FrameBoundaries.textureOffset.x,
 					FrameBoundaries.textureOffset.y,
@@ -126,9 +101,10 @@ public class MEObjectEditor : Editor
 					Screen.width,
 					12f
 				),
-				FrameName + " " + MyFramesMap.atlas.mainTexture.width * FrameBoundaries.textureScale.x + "x" + MyFramesMap.atlas.mainTexture.height * FrameBoundaries.textureScale.y
+				MySprite.FrameName + " " + MySprite.MyFramesMap.atlas.mainTexture.width * FrameBoundaries.textureScale.x + "x" + MySprite.MyFramesMap.atlas.mainTexture.height * FrameBoundaries.textureScale.y
 			);
 		}
+		MySprite.RefreshSprite ();
 	}
 	
 	#region Static Context

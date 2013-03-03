@@ -37,7 +37,7 @@ public class AnimationHelper : MonoBehaviour
 			newFramesMap.spriteBounds = ReadXML (clipResources [i].textureAtlasFrames);
 			
 			AnimationSequence newSequence = new GameObject ("sequence_" + clipResources [i].name, typeof(AnimationSequence)).GetComponent<AnimationSequence> ();
-			newSequence.framesMap = newFramesMap;
+			//newSequence.framesMap = newFramesMap;
 			for (int j = 0; j < newFramesMap.spriteBounds.Count; j++) {
 				newSequence.frames.Add (new AnimFrame (newFramesMap.spriteBounds [j].name, 1f));
 			}

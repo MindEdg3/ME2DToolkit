@@ -1,9 +1,36 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../Abductality/Assets/NGUI/Scripts/Editor/UIWidgetInspector.cs">
-    <Files>
-      <File FileName="../Abductality/Assets/NGUI/Scripts/Editor/UIWidgetInspector.cs" Line="13" Column="30" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Assembly-CSharp" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="ME2DToolkit_examples" expanded="True">
+                <Node name="Insects" expanded="True" />
+              </Node>
+              <Node name="Scripts" expanded="True">
+                <Node name="ME2DToolkit" expanded="True">
+                  <Node name="Objects" expanded="True" />
+                  <Node name="Util" expanded="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+          <Node name="Assembly-CSharp-Editor" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Editor" expanded="True">
+                <Node name="ME2DToolkit" expanded="True">
+                  <Node name="Editor" expanded="True">
+                    <Node name="MESpriteEditor.cs" selected="True" />
+                  </Node>
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
