@@ -13,6 +13,7 @@ public class MESpritesManager : EditorWindow
 	private float scale = 1f;
 	private FramesMap framesMap;
 	private Texture2D atlas;
+	private Vector2 scrollPosition;
 	
 	[MenuItem("Window/MEAnimation/Sprites Manager %#m")]
 	static void OpenWindow ()
@@ -30,12 +31,13 @@ public class MESpritesManager : EditorWindow
 	void OnGUI ()
 	{
 		
+		scrollPosition = EditorGUILayout.BeginScrollView (scrollPosition);
 		///
 		/// Objects
 		/// 
 		GUILayout.Label ("Add object");
 		
-		selectedObjectOption = (ObjectType)EditorGUILayout.EnumPopup ("Select Object", selectedObjectOption);
+		selectedObjectOption = (ObjectType)EditorGUILayout.EnumPopup ("Object preset", selectedObjectOption);
 		
 		switch (selectedObjectOption) {
 		case ObjectType.SimpleSprite:
@@ -67,9 +69,11 @@ public class MESpritesManager : EditorWindow
 		if (GUILayout.Button ("Atlas Maker")) {
 			EditorWindow.GetWindow (typeof(AtlasMaker));
 		}
-		if (GUILayout.Button ("Bake Scales (Shift+B)")) {
-			MESpritesManager.BakeScales ();
+		if (GUILayout.Button ("Bake Scales on selection (Shift+B)")) {
+			MESpritesManager.BakeSelected ();
 		}
+		
+		EditorGUILayout.EndScrollView ();
 	}
 	
 	#region GUI elements
@@ -133,16 +137,57 @@ public class MESpritesManager : EditorWindow
 		newGO.active = true;
 	}
 	
-	[MenuItem ("Window/MEAnimation/Bake Scales #b")]
-	static void BakeScales ()
+	/// <summary>
+	/// Bakes() local scale of selected sprite objects.
+	/// </summary>
+	[MenuItem ("Window/MEAnimation/Bake Scales on selection #b")]
+	static void BakeSelected ()
 	{
 		Object[] sprites = Selection.GetFiltered (typeof(MESprite), SelectionMode.TopLevel);
+		/*
+		 * Undo is not working correctly, because of refreshing, that refreshes only one selected object
+		 * 
+		Transform[] spriteGOs = new Transform[sprites.Length];
+		for (int i =0; i < sprites.Length; i++) {
+			spriteGOs [i] = (sprites [i] as MESprite).transform;
+		}
+		
+		Object[] undoObjects = new Object[sprites.Length + spriteGOs.Length];
+		spriteGOs.CopyTo(undoObjects, 0);
+		sprites.CopyTo(undoObjects, spriteGOs.Length);
+		
+		Undo.RegisterUndo (undoObjects, "Baking Scales on selection");
+		*/
 		
 		if (sprites.Length > 0) {
 			for (int i = 0; i < sprites.Length; i++) {
-				Debug.Log (sprites [i].name);
+				BakeScale (sprites [i] as MESprite);
 			}
 		}
+	}
+	
+	/// <summary>
+	/// Bakes local scale of sprite.
+	/// </summary>
+	/// <param name='spriteObject'>
+	/// Target sprite object.
+	/// </param>
+	static void BakeScale (MESprite spriteObject)
+	{
+		Vector3 oldScale = spriteObject.transform.localScale;
+		
+		if (oldScale.x <= oldScale.y) {
+			spriteObject.transform.localScale = new Vector3 (1f, oldScale.y / oldScale.x, 1f);
+			spriteObject.Scale *= oldScale.x;
+		} else {
+			spriteObject.transform.localScale = new Vector3 (oldScale.x / oldScale.y, 1f, 1f);
+			spriteObject.Scale *= oldScale.y;
+		}
+#if UNITY_EDITOR
+		if (!Application.isPlaying){
+			spriteObject.RefreshSprite();
+		}
+#endif
 	}
 }
 

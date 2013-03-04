@@ -9,9 +9,12 @@ using System.Collections;
 [CanEditMultipleObjects]
 public class MESpriteEditor : Editor
 {
+	protected bool isNeedToRefresh = false;
 	private int selectedFrameIndex;
 	private SpriteBounds _frameBoundaries;
-	MESprite _mySprite;
+	private MESprite _mySprite;
+	
+	#region Properties
 	
 	/// <summary>
 	/// Link to target object
@@ -37,7 +40,7 @@ public class MESpriteEditor : Editor
 	private SpriteBounds FrameBoundaries {
 		get {
 			if (_frameBoundaries == null) {
-				_frameBoundaries = MySprite.MyFramesMap.spriteBounds.Find (sb => sb.name == MySprite.FrameName);
+				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
 			}
 			return _frameBoundaries;
 		}
@@ -46,34 +49,112 @@ public class MESpriteEditor : Editor
 		}
 	}
 	
+	protected SpriteHorizontalAlignment HorizontalSpriteAlignment {
+		get {
+			return MySprite.HorizontalSpriteAlignment;
+		}
+		set {
+			if (MySprite.HorizontalSpriteAlignment != value) {
+				Undo.RegisterUndo (MySprite, "Sprite horizontal alignment change");
+				
+				MySprite.HorizontalSpriteAlignment = value;
+				isNeedToRefresh = true;
+			}
+		}
+	}
+	
+	protected SpriteVerticalAlignment VerticalSpriteAlignment {
+		get {
+			return MySprite.VerticalSpriteAlignment;
+		}
+		set {
+			if (MySprite.VerticalSpriteAlignment != value) {
+				Undo.RegisterUndo (MySprite, "Sprite vertical alignment change");
+				
+				MySprite.VerticalSpriteAlignment = value;
+				isNeedToRefresh = true;
+			}
+		}
+	}
+	
+	protected FramesMap MyFramesMap {
+		get {
+			return MySprite.MyFramesMap;
+		}
+		set {
+			if (MySprite.MyFramesMap != value) {
+				Undo.RegisterUndo (MySprite, "Sprite frame map change");
+				
+				MySprite.MyFramesMap = value;
+				if (MySprite.MyFramesMap == null) {
+					FrameBoundaries = null;
+				} else {
+					_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
+				}
+				isNeedToRefresh = true;
+			}
+		}
+	}
+	
+	protected string FrameName {
+		get {
+			return MySprite.FrameName;
+		}
+		set {
+			if (!MySprite.FrameName.Equals (value)) {
+				Undo.RegisterUndo (MySprite, "Sprite frame name change");
+				
+				MySprite.FrameName = value;
+				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
+				isNeedToRefresh = true;
+			}
+		}
+	}
+	
+	protected float Scale {
+		get {
+			return MySprite.Scale;
+		}
+		set {
+			if (MySprite.Scale != value) {
+				Undo.RegisterUndo (MySprite, "Sprite scale change");
+				
+				MySprite.Scale = value;
+				isNeedToRefresh = true;
+			}
+		}
+	}
+	#endregion
+	
 	/// <summary>
 	/// Creates custom inspector elements.
 	/// </summary>/
 	public override void OnInspectorGUI ()
 	{
-		MySprite.HorizontalSpriteAlignment = (SpriteHorizontalAlignment)EditorGUILayout.EnumPopup ("Horizontal Alignment", MySprite.HorizontalSpriteAlignment);
-		MySprite.VerticalSpriteAlignment = (SpriteVerticalAlignment)EditorGUILayout.EnumPopup ("Vertical Alignment", MySprite.VerticalSpriteAlignment);
-		
-		GameObject selectedMapGO = EditorGUILayout.ObjectField ("Frame Map", MySprite.MyFramesMap, typeof(GameObject), false) as GameObject;
+		MyFramesMap = EditorGUILayout.ObjectField ("Frame Map", MyFramesMap, typeof(FramesMap), false) as FramesMap;
+		/*
+		GameObject selectedMapGO = EditorGUILayout.ObjectField ("Frame Map", MyFramesMap, typeof(GameObject), false) as GameObject;
 		if (selectedMapGO != null) {
 			FramesMap _fm = selectedMapGO.GetComponent<FramesMap> ();
-			if (_fm != null) {
-				MySprite.MyFramesMap = _fm; 
-			}
-		}
+			MyFramesMap = _fm;
+		}*/
 		
-		if (MySprite.MyFramesMap != null) {
-			string[] frameNames = new string[MySprite.MyFramesMap.spriteBounds.Count];
+		if (MyFramesMap != null) {
+			string[] frameNames = new string[MyFramesMap.spriteBounds.Count];
 			for (int i = 0; i< frameNames.Length; i++) {
-				frameNames [i] = MySprite.MyFramesMap.spriteBounds [i].name;
-				if (frameNames [i].Equals (MySprite.FrameName)) {
+				frameNames [i] = MyFramesMap.spriteBounds [i].name;
+				if (frameNames [i].Equals (FrameName)) {
 					selectedFrameIndex = i;
 				}
 			}
 			selectedFrameIndex = EditorGUILayout.Popup ("Frame Name", selectedFrameIndex, frameNames);
-			if (!MySprite.FrameName.Equals (MySprite.MyFramesMap.spriteBounds [selectedFrameIndex].name)) {
-				MySprite.FrameName = MySprite.MyFramesMap.spriteBounds [selectedFrameIndex].name;
-			}
+			FrameName = MyFramesMap.spriteBounds [selectedFrameIndex].name;
+			
+			Scale = EditorGUILayout.FloatField ("Scale", Scale);
+			
+			HorizontalSpriteAlignment = (SpriteHorizontalAlignment)EditorGUILayout.EnumPopup ("Horizontal Alignment", HorizontalSpriteAlignment);
+			VerticalSpriteAlignment = (SpriteVerticalAlignment)EditorGUILayout.EnumPopup ("Vertical Alignment", VerticalSpriteAlignment);
+			
 			GUILayout.Button ("Bake Scale");
 			
 			// Image preview
@@ -87,7 +168,7 @@ public class MESpriteEditor : Editor
 					Screen.width - 32f,
 					(Screen.width - 32f) * FrameBoundaries.textureScale.y / FrameBoundaries.textureScale.x
 				),
-				MySprite.MyFramesMap.atlas.mainTexture,
+				MyFramesMap.atlas.mainTexture,
 				new Rect (
 					FrameBoundaries.textureOffset.x,
 					FrameBoundaries.textureOffset.y,
@@ -99,12 +180,27 @@ public class MESpriteEditor : Editor
 					0f,
 					rect.yMin + 30f + (Screen.width - 32f) * FrameBoundaries.textureScale.y / FrameBoundaries.textureScale.x,
 					Screen.width,
-					12f
+					24f
 				),
-				MySprite.FrameName + " " + MySprite.MyFramesMap.atlas.mainTexture.width * FrameBoundaries.textureScale.x + "x" + MySprite.MyFramesMap.atlas.mainTexture.height * FrameBoundaries.textureScale.y
+				FrameName + "\n" + 
+				MyFramesMap.atlas.mainTexture.width * FrameBoundaries.textureScale.x + "x" + MyFramesMap.atlas.mainTexture.height * FrameBoundaries.textureScale.y
 			);
 		}
-		MySprite.RefreshSprite ();
+		
+		
+		if (Event.current.type == EventType.ValidateCommand) {
+			switch (Event.current.commandName) {
+			case "UndoRedoPerformed":
+				MySprite.RefreshSprite ();
+				isNeedToRefresh = false;
+				break;
+			}
+		}
+		
+		if (isNeedToRefresh) {
+			MySprite.RefreshSprite ();
+			isNeedToRefresh = false;
+		}
 	}
 	
 	#region Static Context
@@ -117,7 +213,7 @@ public class MESpriteEditor : Editor
 	static Texture2D CreateDummyTex ()
 	{
 		Texture2D tex = new Texture2D (1, 1);
-		tex.name = "[Generated] Dummy Texture";
+		tex.name = "Dummy Texture";
 		tex.hideFlags = HideFlags.DontSave;
 		tex.filterMode = FilterMode.Point;
 		tex.SetPixel (0, 0, Color.white);

@@ -182,6 +182,6 @@ public class SpriteBounds
 	/// </returns>
 	public bool Equals (SpriteBounds otherSB)
 	{
-		return (otherSB.name == this.name) && (this.textureOffset.Equals (otherSB.textureOffset)) && (textureScale.Equals (otherSB.textureScale)) && (spriteSizeRatio == spriteSizeRatio);
+		return (otherSB.name.Equals (name)) && (this.textureOffset.Equals (otherSB.textureOffset)) && (textureScale.Equals (otherSB.textureScale)) && (spriteSizeRatio.Equals (spriteSizeRatio));
 	}
 }

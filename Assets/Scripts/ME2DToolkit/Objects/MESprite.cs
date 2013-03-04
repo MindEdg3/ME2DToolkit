@@ -1,6 +1,9 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+/// Runtime class for simple 2D sprite.
+/// </summary>
 public class MESprite : MonoBehaviour
 {
 	[HideInInspector]
@@ -21,18 +24,13 @@ public class MESprite : MonoBehaviour
 	[HideInInspector]
 	[SerializeField]
 	protected FramesMap _framesMap;
-	[HideInInspector]
-	[SerializeField]
 	protected bool isNeedToRefresh = false;
 	[HideInInspector]
 	[SerializeField]
 	protected MeshFilter _renderTargetMeshFilter;
 	[HideInInspector]
 	[SerializeField]
-	protected string lastName;
-	[HideInInspector]
-	[SerializeField]
-	protected SpriteBounds lastBoundaries = new SpriteBounds ("", Vector2.zero, Vector2.zero, 0f);
+	public SpriteBounds lastBoundaries = new SpriteBounds ("", Vector2.zero, Vector2.zero, 0f);
 	
 	/// <summary>
 	/// Gets or sets the scale of this sprite.
@@ -46,8 +44,12 @@ public class MESprite : MonoBehaviour
 		}
 		set {
 			if (_scale != value) {
-				_scale = value;
+				_scale = Mathf.Clamp (value, 0, 1000);
 				isNeedToRefresh = true;
+#if UNITY_EDITOR
+			if (!Application.isPlaying) 
+				RefreshSprite();
+#endif
 			}
 		}
 	}
@@ -173,8 +175,8 @@ public class MESprite : MonoBehaviour
 	{
 	}
 	
-	// Update is called once per frame
-	public virtual void Update ()
+	// LateUpdate is called once per frame after all updates
+	public virtual void LateUpdate ()
 	{
 		if (isNeedToRefresh) {
 			isNeedToRefresh = false;

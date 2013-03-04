@@ -40,15 +40,6 @@ public class AnimatedSprite : MESprite
 			lastTimeFrameChanged = Time.time;
 		}
 	}
-#if UNITY_EDITOR
-	void OnDestroy () {
-		if (RenderTargetMeshFilter != null){
-			if (RenderTargetMeshFilter.sharedMesh != null) {
-				DestroyImmediate (RenderTargetMeshFilter.sharedMesh);
-			}
-		}
-	}
-#endif
 	
 	private void AdjustTexture (int adjustableFrameIndex)
 	{
