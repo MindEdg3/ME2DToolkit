@@ -91,7 +91,7 @@ public class MESprite : MonoBehaviour
 			return _frameName;
 		}
 		set {
-			if (_frameName != value) {
+			if (_frameName != value && MyFramesMap != null) {
 				SpriteBounds _spriteBounds = MyFramesMap.spriteBounds.Find (sb => sb.name == value);
 				if (_spriteBounds != null) {
 					_frameName = value;
@@ -193,7 +193,14 @@ public class MESprite : MonoBehaviour
 				DestroyImmediate (RenderTargetMeshFilter.sharedMesh);
 			else
 #endif
-			Destroy (RenderTargetMeshFilter.sharedMesh);
+			Destroy (RenderTargetMeshFilter.mesh);
+		}
+	}
+	
+	public virtual void OnApplicationQuit ()
+	{
+		if (RenderTargetMeshFilter.sharedMesh != null) {
+			DestroyImmediate (RenderTargetMeshFilter.sharedMesh);
 		}
 	}
 	

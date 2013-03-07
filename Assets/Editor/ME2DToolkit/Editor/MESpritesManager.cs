@@ -4,7 +4,6 @@ using System.Collections;
 
 public class MESpritesManager : EditorWindow
 {
-	public FramesMap frames;
 	public AnimationSequence framesSequence;
 	public string errorMessage = "";
 	private ObjectType selectedObjectOption;
@@ -12,6 +11,8 @@ public class MESpritesManager : EditorWindow
 	private SpriteVerticalAlignment verticalSpriteAlignment;
 	private float scale = 1f;
 	private FramesMap framesMap;
+	private int selectedFrameNameIndex;
+	private string frameName;
 	private Texture2D atlas;
 	private Vector2 scrollPosition;
 	
@@ -41,11 +42,15 @@ public class MESpritesManager : EditorWindow
 		
 		switch (selectedObjectOption) {
 		case ObjectType.SimpleSprite:
+			DrawFrameMap ();
+			DrawFrameName ();
 			DrawScale ();
+			DrawAlignment ();
 			break;
 		case ObjectType.AnimatedSprite:
-			DrawScale ();
+			DrawFrameMap ();
 			DrawAnimSequenceSelector ();
+			DrawScale ();
 			break;
 		}
 		GUI.color = Color.green;
@@ -77,6 +82,26 @@ public class MESpritesManager : EditorWindow
 	}
 	
 	#region GUI elements
+	private void DrawFrameMap ()
+	{
+		framesMap = EditorGUILayout.ObjectField ("Frame Map", framesMap, typeof(FramesMap), false) as FramesMap;
+	}
+	
+	private void DrawFrameName ()
+	{
+		if (framesMap != null) {
+			string[] frameNames = new string[framesMap.spriteBounds.Count];
+			for (int i = 0; i< frameNames.Length; i++) {
+				frameNames [i] = framesMap.spriteBounds [i].name;
+				/*if (frameNames [i].Equals (FrameName)) {
+					selectedFrameNameIndex = i;
+				}*/
+			}
+			selectedFrameNameIndex = EditorGUILayout.Popup ("Frame Name", selectedFrameNameIndex, frameNames);
+			frameName = frameNames [selectedFrameNameIndex];
+		}
+	}
+	
 	private void DrawAlignment ()
 	{
 		horizontalSpriteAlignment = (SpriteHorizontalAlignment)EditorGUILayout.EnumPopup ("Horizontal Alignment", horizontalSpriteAlignment);
@@ -115,6 +140,10 @@ public class MESpritesManager : EditorWindow
 			newGO.name = "Simple 2D Sprite";
 			MESprite newSS = newGO.AddComponent<MESprite> ();
 			newSS.RenderTarget = graphics;
+			newSS.MyFramesMap = framesMap;
+			newSS.FrameName = frameName;
+			newSS.HorizontalSpriteAlignment = horizontalSpriteAlignment;
+			newSS.VerticalSpriteAlignment = verticalSpriteAlignment;
 			newSS.Scale = scale;
 			break;
 		case ObjectType.AnimatedSprite:
@@ -135,6 +164,7 @@ public class MESpritesManager : EditorWindow
 		errorMessage = "";
 		Selection.activeGameObject = newGO;
 		newGO.active = true;
+		Undo.RegisterCreatedObjectUndo (newGO, "Adding New Sprite");
 	}
 	
 	/// <summary>
@@ -172,7 +202,7 @@ public class MESpritesManager : EditorWindow
 	/// <param name='spriteObject'>
 	/// Target sprite object.
 	/// </param>
-	static void BakeScale (MESprite spriteObject)
+	public static void BakeScale (MESprite spriteObject)
 	{
 		Vector3 oldScale = spriteObject.transform.localScale;
 		

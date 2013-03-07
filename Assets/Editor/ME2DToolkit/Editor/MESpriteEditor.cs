@@ -155,7 +155,9 @@ public class MESpriteEditor : Editor
 			HorizontalSpriteAlignment = (SpriteHorizontalAlignment)EditorGUILayout.EnumPopup ("Horizontal Alignment", HorizontalSpriteAlignment);
 			VerticalSpriteAlignment = (SpriteVerticalAlignment)EditorGUILayout.EnumPopup ("Vertical Alignment", VerticalSpriteAlignment);
 			
-			GUILayout.Button ("Bake Scale");
+			if (GUILayout.Button ("Bake Scale")) {
+				MESpritesManager.BakeScale (MySprite);
+			}
 			
 			// Image preview
 			Rect rect = GUILayoutUtility.GetLastRect ();
