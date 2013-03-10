@@ -10,6 +10,7 @@ public class MESpritesManager : EditorWindow
 	private SpriteHorizontalAlignment horizontalSpriteAlignment;
 	private SpriteVerticalAlignment verticalSpriteAlignment;
 	private float scale = 1f;
+	private float speed = 1f;
 	private FramesMap framesMap;
 	private int selectedFrameNameIndex;
 	private string frameName;
@@ -49,8 +50,10 @@ public class MESpritesManager : EditorWindow
 			break;
 		case ObjectType.AnimatedSprite:
 			DrawFrameMap ();
-			DrawAnimSequenceSelector ();
+			DrawAlignment ();
 			DrawScale ();
+			DrawAnimSequenceSelector ();
+			DrawSpeed ();
 			break;
 		}
 		GUI.color = Color.green;
@@ -116,6 +119,14 @@ public class MESpritesManager : EditorWindow
 		}
 	}
 	
+	private void DrawSpeed ()
+	{
+		float _speed = EditorGUILayout.FloatField ("Speed", speed);
+		if (_speed > 0) {
+			speed = _speed;
+		}
+	}
+	
 	private void DrawAnimSequenceSelector ()
 	{
 		GameObject selectedSequenceGO = EditorGUILayout.ObjectField ("Animation Sequence:", framesSequence, typeof(GameObject), false) as GameObject;
@@ -147,18 +158,16 @@ public class MESpritesManager : EditorWindow
 			newSS.Scale = scale;
 			break;
 		case ObjectType.AnimatedSprite:
-			if (framesSequence == null) {
-				DestroyImmediate (newGO);
-				errorMessage = "Set FramesSequence!";
-				return;
-			} else {
-				newGO.name = "Animation (" + framesSequence.gameObject.name + ")";
-				AnimatedSprite newAS = newGO.AddComponent<AnimatedSprite> ();
-				newAS.framesSequence = this.framesSequence;
-				newAS.RenderTarget = graphics;
-				newAS.Scale = scale;
-				break;
-			}
+			newGO.name = "Animated Sprite";
+			AnimatedSprite newAS = newGO.AddComponent<AnimatedSprite> ();
+			newAS.RenderTarget = graphics;
+			newAS.MyFramesMap = framesMap;
+			newAS.HorizontalSpriteAlignment = horizontalSpriteAlignment;
+			newAS.VerticalSpriteAlignment = verticalSpriteAlignment;
+			newAS.Scale = scale;
+			newAS.Speed = speed;
+			newAS.FramesSequence = framesSequence;
+			break;
 		}
 		
 		errorMessage = "";
@@ -219,6 +228,38 @@ public class MESpritesManager : EditorWindow
 		}
 #endif
 	}
+	
+	
+	#region Static Context
+	static Texture2D mWhiteTex;
+	
+	/// <summary>
+	/// Create a white dummy texture.
+	/// </summary>
+
+	static Texture2D CreateDummyTex ()
+	{
+		Texture2D tex = new Texture2D (1, 1);
+		tex.name = "Dummy Texture";
+		tex.hideFlags = HideFlags.DontSave;
+		tex.filterMode = FilterMode.Point;
+		tex.SetPixel (0, 0, Color.white);
+		tex.Apply ();
+		return tex;
+	}
+	
+	/// <summary>
+	/// Returns a blank usable 1x1 white texture.
+	/// </summary>
+
+	static public Texture2D blankTexture {
+		get {
+			if (mWhiteTex == null)
+				mWhiteTex = MESpritesManager.CreateDummyTex ();
+			return mWhiteTex;
+		}
+	}
+	#endregion
 }
 
 enum ObjectType

@@ -11,11 +11,13 @@ public class AnimationSequence : MonoBehaviour
 [Serializable]
 public class AnimFrame
 {	
+	public FramesMap framesMap;
 	public string frameName;
 	public float speed = 1f;
 	
-	public AnimFrame (string frameName, float speed)
+	public AnimFrame (FramesMap framesMap, string frameName, float speed)
 	{
+		this.framesMap = framesMap;
 		this.frameName = frameName;
 		this.speed = speed;
 	}

@@ -8,6 +8,7 @@ public class InsectMove : MonoBehaviour
 	private Rect screenBounds;
 	private Vector3 target;
 	private Transform tr;
+	private const float MIN_TARGET_DISTANCE = 3f;
 
 	// Use this for initialization
 	void Start ()
@@ -24,7 +25,7 @@ public class InsectMove : MonoBehaviour
 		float distance = Vector3.Distance (tr.position, target);
 		
 		if (distance * distance < nextMove.sqrMagnitude) {
-			target = new Vector3 (Random.Range (screenBounds.xMin, screenBounds.xMax), Random.Range (screenBounds.yMin, screenBounds.yMax), 0);
+			target = GetNewTarget ();
 		}
 		tr.Translate (nextMove);
 		tr.rotation = Quaternion.Slerp (
@@ -36,7 +37,37 @@ public class InsectMove : MonoBehaviour
 			tr.position = ClosestPointToRect (screenBounds, tr.position);
 		}
 	}
-
+	
+	/// <summary>
+	/// Gets the new target in space.
+	/// </summary>
+	/// <returns>
+	/// The new target.
+	/// </returns>
+	Vector3 GetNewTarget ()
+	{
+		Vector3 ret;
+		
+		ret = new Vector3 (Random.Range (screenBounds.xMin, screenBounds.xMax), Random.Range (screenBounds.yMin, screenBounds.yMax), 0);
+		if (Vector3.Distance (tr.position, ret) < MIN_TARGET_DISTANCE) {
+			ret = GetNewTarget ();
+		}
+		
+		return ret;
+	}
+	
+	/// <summary>
+	/// Returns closests point to the rectangle.
+	/// </summary>
+	/// <returns>
+	/// The point near rect.
+	/// </returns>
+	/// <param name='rect'>
+	/// Rectangle.
+	/// </param>
+	/// <param name='point'>
+	/// Point in space.
+	/// </param>
 	private Vector3 ClosestPointToRect (Rect rect, Vector3 point)
 	{
 		Vector3 ret = Vector3.zero;

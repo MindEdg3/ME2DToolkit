@@ -39,7 +39,7 @@ public class AnimationHelper : MonoBehaviour
 			AnimationSequence newSequence = new GameObject ("sequence_" + clipResources [i].name, typeof(AnimationSequence)).GetComponent<AnimationSequence> ();
 			//newSequence.framesMap = newFramesMap;
 			for (int j = 0; j < newFramesMap.spriteBounds.Count; j++) {
-				newSequence.frames.Add (new AnimFrame (newFramesMap.spriteBounds [j].name, 1f));
+				newSequence.frames.Add (new AnimFrame (newFramesMap, newFramesMap.spriteBounds [j].name, 1f));
 			}
 		}
 	}

@@ -1,11 +1,13 @@
 using System;
 using UnityEngine;
 
+[ExecuteInEditMode]
 /// <summary>
 /// Runtime class for simple 2D sprite.
 /// </summary>
 public class MESprite : MonoBehaviour
 {
+	#region Fields
 	[HideInInspector]
 	[SerializeField]
 	public string _frameName = "";
@@ -31,7 +33,9 @@ public class MESprite : MonoBehaviour
 	[HideInInspector]
 	[SerializeField]
 	public SpriteBounds lastBoundaries = new SpriteBounds ("", Vector2.zero, Vector2.zero, 0f);
+	#endregion
 	
+	#region Properties
 	/// <summary>
 	/// Gets or sets the scale of this sprite.
 	/// </summary>
@@ -169,6 +173,7 @@ public class MESprite : MonoBehaviour
 			return _renderTargetMeshFilter;
 		}
 	}
+	#endregion
 
 	// Use this for initialization
 	public virtual void Start ()
@@ -178,9 +183,11 @@ public class MESprite : MonoBehaviour
 	// LateUpdate is called once per frame after all updates
 	public virtual void LateUpdate ()
 	{
-		if (isNeedToRefresh) {
-			isNeedToRefresh = false;
-			RefreshSprite ();
+		if (Application.isPlaying) {
+			if (isNeedToRefresh) {
+				isNeedToRefresh = false;
+				RefreshSprite ();
+			}
 		}
 	}
 	
@@ -188,12 +195,11 @@ public class MESprite : MonoBehaviour
 	{
 		// Destroying old mesh
 		if (RenderTargetMeshFilter.sharedMesh != null) {
-#if UNITY_EDITOR
-			if (!Application.isPlaying) 
+			if (Application.isPlaying) {
+				Destroy (RenderTargetMeshFilter.mesh);
+			} else {
 				DestroyImmediate (RenderTargetMeshFilter.sharedMesh);
-			else
-#endif
-			Destroy (RenderTargetMeshFilter.mesh);
+			}
 		}
 	}
 	
@@ -206,7 +212,7 @@ public class MESprite : MonoBehaviour
 	
 	public virtual void RefreshSprite ()
 	{
-		if (MyFramesMap == null) {			
+		if (MyFramesMap == null) {
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
 				DestroyImmediate(RenderTargetMeshFilter.sharedMesh);
