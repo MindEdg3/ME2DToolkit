@@ -32,7 +32,10 @@ public class MESprite : MonoBehaviour
 	protected MeshFilter _renderTargetMeshFilter;
 	[HideInInspector]
 	[SerializeField]
-	public SpriteBounds lastBoundaries = new SpriteBounds ("", Vector2.zero, Vector2.zero, 0f);
+	public SpriteBounds previousBoundaries = new SpriteBounds ("", Vector2.zero, Vector2.zero, 0f);
+	[HideInInspector]
+	[SerializeField]
+	public float previousScale = 0f;
 	#endregion
 	
 	#region Properties
@@ -81,6 +84,22 @@ public class MESprite : MonoBehaviour
 				}
 				isNeedToRefresh = true;
 			}
+		}
+	}
+
+	protected SpriteBounds FrameBoundaries {
+		get {
+			SpriteBounds _frameBoundaries = null;
+			
+			if (MyFramesMap != null) {
+				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
+				if (_frameBoundaries == null) {
+					FrameName = MyFramesMap.spriteBounds [0].name;
+					_frameBoundaries = MyFramesMap.spriteBounds [0];
+				}
+			}
+			
+			return _frameBoundaries;
 		}
 	}
 	
@@ -174,10 +193,17 @@ public class MESprite : MonoBehaviour
 		}
 	}
 	#endregion
-
+	
+	public virtual void OnEnable ()
+	{
+	}
+	
 	// Use this for initialization
 	public virtual void Start ()
 	{
+		if (MyFramesMap != null) {
+			RenderTargetMeshFilter.sharedMesh = CreateMesh (FrameBoundaries);
+		}
 	}
 	
 	// LateUpdate is called once per frame after all updates
@@ -185,8 +211,12 @@ public class MESprite : MonoBehaviour
 	{
 		if (Application.isPlaying) {
 			if (isNeedToRefresh) {
-				isNeedToRefresh = false;
 				RefreshSprite ();
+				isNeedToRefresh = false;
+			}
+		} else {
+			if (RenderTargetMeshFilter.sharedMesh == null && MyFramesMap != null) {
+				RenderTargetMeshFilter.sharedMesh = CreateMesh (FrameBoundaries);
 			}
 		}
 	}
@@ -223,18 +253,9 @@ public class MESprite : MonoBehaviour
 			if (RenderTarget.sharedMaterial != MyFramesMap.atlas) {
 				RenderTarget.sharedMaterial = MyFramesMap.atlas;
 			}
-			
-			// Destroying old mesh
-			if (RenderTargetMeshFilter.sharedMesh != null) {
-#if UNITY_EDITOR
-				DestroyImmediate (RenderTargetMeshFilter.sharedMesh);
-#else
-				Destroy (RenderTargetMeshFilter.sharedMesh);
-#endif
-			}
-		
-			SpriteBounds currentBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
-			RenderTargetMeshFilter.sharedMesh = CreateMesh (currentBoundaries);
+			SpriteBounds currentBoundaries = FrameBoundaries;
+			UpdateMesh (RenderTargetMeshFilter, currentBoundaries);
+			previousBoundaries = currentBoundaries;
 		}
 	}
 
@@ -282,8 +303,55 @@ public class MESprite : MonoBehaviour
 		newMesh.triangles = new int[] {0,1,2,0,2,3};
 			
 		newMesh.normals = new Vector3[] {Vector3.up, Vector3.up, Vector3.up, Vector3.up};
-		
+
 		return newMesh;
+	}
+	
+	public void UpdateMesh (MeshFilter targetMeshFilter, SpriteBounds spriteBoundaries)
+	{
+		if (targetMeshFilter.sharedMesh == null) {	
+			targetMeshFilter.sharedMesh = CreateMesh (spriteBoundaries);
+		} else {
+			if (previousBoundaries.textureScale.x != spriteBoundaries.textureScale.x ||
+				previousBoundaries.textureScale.y != spriteBoundaries.textureScale.y ||
+				previousBoundaries.spriteSizeRatio != spriteBoundaries.spriteSizeRatio ||
+				isNeedToRefresh) {
+				
+				float halfWidth = Scale * 0.5f * spriteBoundaries.textureScale.x * spriteBoundaries.spriteSizeRatio;
+				float halfHeight = Scale * 0.5f * spriteBoundaries.textureScale.y * spriteBoundaries.spriteSizeRatio;
+		
+				targetMeshFilter.sharedMesh.vertices = new Vector3[] {
+				new Vector3 (
+					-1 * (1 + (int)HorizontalSpriteAlignment) * halfWidth,
+					-1 * (1 + (int)VerticalSpriteAlignment) * halfHeight,
+					0f
+				),
+				new Vector3 (
+					-1 * (1 + (int)HorizontalSpriteAlignment) * halfWidth,
+					(1 - (int)VerticalSpriteAlignment) * halfHeight,
+					0f
+				),
+				new Vector3 (
+					(1 - (int)HorizontalSpriteAlignment) * halfWidth,
+					(1 - (int)VerticalSpriteAlignment) * halfHeight,
+					0f
+				),
+				new Vector3 (
+					(1 - (int)HorizontalSpriteAlignment) * halfWidth,
+					-1 * (1 + (int)VerticalSpriteAlignment) * halfHeight,
+					0f
+				)
+			};
+			
+				targetMeshFilter.sharedMesh.uv = new Vector2[] {
+				spriteBoundaries.textureOffset,
+				new Vector2 (spriteBoundaries.textureOffset.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureScale.y),
+				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureScale.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureScale.y),
+				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureScale.x, spriteBoundaries.textureOffset.y)
+			};
+			}
+			isNeedToRefresh = true;
+		}
 	}
 }
 

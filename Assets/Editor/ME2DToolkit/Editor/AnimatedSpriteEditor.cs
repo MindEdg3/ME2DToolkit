@@ -34,10 +34,18 @@ public class AnimatedSpriteEditor : SimpleSpriteEditor
 		set {
 			MyAnimatedSprite.FramesSequence = value;
 			if (value != null) {
-				if (!value.frames [0].framesMap.Equals (MyFramesMap)) {
-					MyFramesMap = value.frames [0].framesMap;
+				int frameInd = MyAnimatedSprite.frameIndex;
+				if (value.frames.Count > frameInd) {
+					if (!value.frames [frameInd].framesMap.Equals (MyFramesMap)) {
+						MyFramesMap = value.frames [frameInd].framesMap;
+					}
+					FrameName = value.frames [frameInd].frameName;
+				} else {
+					if (!value.frames [0].framesMap.Equals (MyFramesMap)) {
+						MyFramesMap = value.frames [0].framesMap;
+					}
+					FrameName = value.frames [0].frameName;
 				}
-				FrameName = value.frames [0].frameName;
 			}
 		}
 	}

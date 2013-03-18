@@ -41,6 +41,9 @@ public class SimpleSpriteEditor : Editor
 		get {
 			if (_frameBoundaries == null) {
 				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
+				if (_frameBoundaries == null) {
+					_frameBoundaries = MyFramesMap.spriteBounds [0];
+				}	
 			}
 			return _frameBoundaries;
 		}
@@ -140,7 +143,7 @@ public class SimpleSpriteEditor : Editor
 			DrawBakeScaleBtn ();
 			DrawImagePreview ();
 		}
-		
+
 		if (Event.current.type == EventType.ValidateCommand) {
 			switch (Event.current.commandName) {
 			case "UndoRedoPerformed":
