@@ -10,7 +10,7 @@ public class MESprite : MonoBehaviour
 	#region Fields
 	[HideInInspector]
 	[SerializeField]
-	public string _frameName = "";
+	public string _spriteName = "";
 	[HideInInspector]
 	[SerializeField]
 	public SpriteHorizontalAlignment _horizontalSpriteAlignment = SpriteHorizontalAlignment.Middle;
@@ -25,7 +25,7 @@ public class MESprite : MonoBehaviour
 	protected float _scale = 1f;
 	[HideInInspector]
 	[SerializeField]
-	protected FramesMap _framesMap;
+	protected SpriteAtlas _spriteAtlas;
 	protected bool isNeedToRefresh = false;
 	[HideInInspector]
 	[SerializeField]
@@ -62,24 +62,24 @@ public class MESprite : MonoBehaviour
 	}
 	
 	/// <summary>
-	/// Gets or sets frames map.
+	/// Gets or sets sprites atlas.
 	/// </summary>
 	/// <value>
-	/// This frames map.
+	/// This sprites atlas.
 	/// </value>
-	public FramesMap MyFramesMap {
+	public SpriteAtlas MySpritesAtlas {
 		get {
-			return _framesMap;
+			return _spriteAtlas;
 		}
 		set {
-			if (_framesMap != value) {
-				_framesMap = value;
+			if (_spriteAtlas != value) {
+				_spriteAtlas = value;
 				
 				// set valid frame name
-				if (_framesMap != null) {
-					SpriteBounds _spriteBounds = _framesMap.spriteBounds.Find (sb => sb.name == FrameName);
+				if (_spriteAtlas != null) {
+					SpriteBounds _spriteBounds = _spriteAtlas.spriteBounds.Find (sb => sb.name == SpriteName);
 					if (_spriteBounds == null) {
-						FrameName = _framesMap.spriteBounds [0].name;
+						SpriteName = _spriteAtlas.spriteBounds [0].name;
 					}
 				}
 				isNeedToRefresh = true;
@@ -87,19 +87,19 @@ public class MESprite : MonoBehaviour
 		}
 	}
 
-	protected SpriteBounds FrameBoundaries {
+	protected SpriteBounds SpriteBoundaries {
 		get {
-			SpriteBounds _frameBoundaries = null;
+			SpriteBounds _spriteBoundaries = null;
 			
-			if (MyFramesMap != null) {
-				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
-				if (_frameBoundaries == null) {
-					FrameName = MyFramesMap.spriteBounds [0].name;
-					_frameBoundaries = MyFramesMap.spriteBounds [0];
+			if (MySpritesAtlas != null) {
+				_spriteBoundaries = MySpritesAtlas.spriteBounds.Find (sb => sb.name == SpriteName);
+				if (_spriteBoundaries == null) {
+					SpriteName = MySpritesAtlas.spriteBounds [0].name;
+					_spriteBoundaries = MySpritesAtlas.spriteBounds [0];
 				}
 			}
 			
-			return _frameBoundaries;
+			return _spriteBoundaries;
 		}
 	}
 	
@@ -109,15 +109,15 @@ public class MESprite : MonoBehaviour
 	/// <value>
 	/// The name of the current frame.
 	/// </value>
-	public string FrameName {
+	public string SpriteName {
 		get {
-			return _frameName;
+			return _spriteName;
 		}
 		set {
-			if (_frameName != value && MyFramesMap != null) {
-				SpriteBounds _spriteBounds = MyFramesMap.spriteBounds.Find (sb => sb.name == value);
+			if (_spriteName != value && MySpritesAtlas != null) {
+				SpriteBounds _spriteBounds = MySpritesAtlas.spriteBounds.Find (sb => sb.name == value);
 				if (_spriteBounds != null) {
-					_frameName = value;
+					_spriteName = value;
 					isNeedToRefresh = true;
 				}
 			}
@@ -201,8 +201,8 @@ public class MESprite : MonoBehaviour
 	// Use this for initialization
 	public virtual void Start ()
 	{
-		if (MyFramesMap != null) {
-			RenderTargetMeshFilter.sharedMesh = CreateMesh (FrameBoundaries);
+		if (MySpritesAtlas != null) {
+			RenderTargetMeshFilter.sharedMesh = CreateMesh (SpriteBoundaries);
 		}
 	}
 	
@@ -215,8 +215,8 @@ public class MESprite : MonoBehaviour
 				isNeedToRefresh = false;
 			}
 		} else {
-			if (RenderTargetMeshFilter.sharedMesh == null && MyFramesMap != null) {
-				RenderTargetMeshFilter.sharedMesh = CreateMesh (FrameBoundaries);
+			if (RenderTargetMeshFilter.sharedMesh == null && MySpritesAtlas != null) {
+				RenderTargetMeshFilter.sharedMesh = CreateMesh (SpriteBoundaries);
 			}
 		}
 	}
@@ -242,7 +242,7 @@ public class MESprite : MonoBehaviour
 	
 	public virtual void RefreshSprite ()
 	{
-		if (MyFramesMap == null) {
+		if (MySpritesAtlas == null) {
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
 				DestroyImmediate(RenderTargetMeshFilter.sharedMesh);
@@ -250,10 +250,10 @@ public class MESprite : MonoBehaviour
 #endif
 			Destroy (RenderTargetMeshFilter.sharedMesh);
 		} else {
-			if (RenderTarget.sharedMaterial != MyFramesMap.atlas) {
-				RenderTarget.sharedMaterial = MyFramesMap.atlas;
+			if (RenderTarget.sharedMaterial != MySpritesAtlas.atlas) {
+				RenderTarget.sharedMaterial = MySpritesAtlas.atlas;
 			}
-			SpriteBounds currentBoundaries = FrameBoundaries;
+			SpriteBounds currentBoundaries = SpriteBoundaries;
 			UpdateMesh (RenderTargetMeshFilter, currentBoundaries);
 			previousBoundaries = currentBoundaries;
 		}
@@ -264,11 +264,15 @@ public class MESprite : MonoBehaviour
 		// new Mesh creating
 		Mesh newMesh = new Mesh ();
 		
-		// Object name
-		newMesh.name = "plane_" + FrameName;
+#if UNITY_EDITOR
+		newMesh.hideFlags = HideFlags.DontSave;
+#endif
 		
-		float halfWidth = Scale * 0.5f * spriteBoundaries.textureScale.x * spriteBoundaries.spriteSizeRatio;
-		float halfHeight = Scale * 0.5f * spriteBoundaries.textureScale.y * spriteBoundaries.spriteSizeRatio;
+		// Object name
+		newMesh.name = "plane_" + SpriteName;
+		
+		float halfWidth = Scale * 0.5f * spriteBoundaries.textureTiling.x * spriteBoundaries.spriteSizeRatio;
+		float halfHeight = Scale * 0.5f * spriteBoundaries.textureTiling.y * spriteBoundaries.spriteSizeRatio;
 		
 		newMesh.vertices = new Vector3[] {
 				new Vector3 (
@@ -295,9 +299,9 @@ public class MESprite : MonoBehaviour
 			
 		newMesh.uv = new Vector2[] {
 				spriteBoundaries.textureOffset,
-				new Vector2 (spriteBoundaries.textureOffset.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureScale.y),
-				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureScale.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureScale.y),
-				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureScale.x, spriteBoundaries.textureOffset.y)
+				new Vector2 (spriteBoundaries.textureOffset.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureTiling.y),
+				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureTiling.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureTiling.y),
+				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureTiling.x, spriteBoundaries.textureOffset.y)
 			};
 		
 		newMesh.triangles = new int[] {0,1,2,0,2,3};
@@ -312,13 +316,13 @@ public class MESprite : MonoBehaviour
 		if (targetMeshFilter.sharedMesh == null) {	
 			targetMeshFilter.sharedMesh = CreateMesh (spriteBoundaries);
 		} else {
-			if (previousBoundaries.textureScale.x != spriteBoundaries.textureScale.x ||
-				previousBoundaries.textureScale.y != spriteBoundaries.textureScale.y ||
+			if (previousBoundaries.textureTiling.x != spriteBoundaries.textureTiling.x ||
+				previousBoundaries.textureTiling.y != spriteBoundaries.textureTiling.y ||
 				previousBoundaries.spriteSizeRatio != spriteBoundaries.spriteSizeRatio ||
 				isNeedToRefresh) {
 				
-				float halfWidth = Scale * 0.5f * spriteBoundaries.textureScale.x * spriteBoundaries.spriteSizeRatio;
-				float halfHeight = Scale * 0.5f * spriteBoundaries.textureScale.y * spriteBoundaries.spriteSizeRatio;
+				float halfWidth = Scale * 0.5f * spriteBoundaries.textureTiling.x * spriteBoundaries.spriteSizeRatio;
+				float halfHeight = Scale * 0.5f * spriteBoundaries.textureTiling.y * spriteBoundaries.spriteSizeRatio;
 		
 				targetMeshFilter.sharedMesh.vertices = new Vector3[] {
 				new Vector3 (
@@ -345,9 +349,9 @@ public class MESprite : MonoBehaviour
 			
 				targetMeshFilter.sharedMesh.uv = new Vector2[] {
 				spriteBoundaries.textureOffset,
-				new Vector2 (spriteBoundaries.textureOffset.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureScale.y),
-				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureScale.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureScale.y),
-				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureScale.x, spriteBoundaries.textureOffset.y)
+				new Vector2 (spriteBoundaries.textureOffset.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureTiling.y),
+				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureTiling.x, spriteBoundaries.textureOffset.y + spriteBoundaries.textureTiling.y),
+				new Vector2 (spriteBoundaries.textureOffset.x + spriteBoundaries.textureTiling.x, spriteBoundaries.textureOffset.y)
 			};
 			}
 			isNeedToRefresh = true;

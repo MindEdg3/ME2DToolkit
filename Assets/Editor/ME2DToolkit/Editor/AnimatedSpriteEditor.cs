@@ -27,24 +27,27 @@ public class AnimatedSpriteEditor : SimpleSpriteEditor
 		}
 	}
 	
-	protected AnimationSequence MyFramesSequence {
+	protected AnimationSequence MySpritesSequence {
 		get {
-			return MyAnimatedSprite.FramesSequence;
+			return MyAnimatedSprite.SpritesSequence;
 		}
 		set {
-			MyAnimatedSprite.FramesSequence = value;
+			MyAnimatedSprite.SpritesSequence = value;
 			if (value != null) {
-				int frameInd = MyAnimatedSprite.frameIndex;
-				if (value.frames.Count > frameInd) {
-					if (!value.frames [frameInd].framesMap.Equals (MyFramesMap)) {
-						MyFramesMap = value.frames [frameInd].framesMap;
+				int spriteIndex = MyAnimatedSprite.spriteIndex;
+				if (value.sprites.Count > spriteIndex) {
+					SpriteAtlas sa = value.sprites [spriteIndex].spritesAtlas;
+					if (sa != null) {
+						if (!sa.Equals (MySpritesAtlas)) {
+							MySpritesAtlas = value.sprites [spriteIndex].spritesAtlas;
+						}
 					}
-					FrameName = value.frames [frameInd].frameName;
+					SpriteName = value.sprites [spriteIndex].spriteName;
 				} else {
-					if (!value.frames [0].framesMap.Equals (MyFramesMap)) {
-						MyFramesMap = value.frames [0].framesMap;
+					if (!value.sprites [0].spritesAtlas.Equals (MySpritesAtlas)) {
+						MySpritesAtlas = value.sprites [0].spritesAtlas;
 					}
-					FrameName = value.frames [0].frameName;
+					SpriteName = value.sprites [0].spriteName;
 				}
 			}
 		}
@@ -52,15 +55,15 @@ public class AnimatedSpriteEditor : SimpleSpriteEditor
 	
 	public override void OnInspectorGUI ()
 	{
-		DrawFramesMap ();
+		DrawSpriteAtlas ();
 		
-		if (MyFramesMap != null) {
-			DrawFramesSequence ();
+		if (MySpritesAtlas != null) {
+			DrawSpritesSequence ();
 			DrawSpeed ();
 			DrawScale ();
 			DrawAlignment ();
 			DrawBakeScaleBtn ();
-			DrawImagePreview ();
+			DrawSpritePreview ();
 		}
 		
 		if (Event.current.type == EventType.ValidateCommand) {
@@ -78,9 +81,9 @@ public class AnimatedSpriteEditor : SimpleSpriteEditor
 		}
 	}
 	
-	protected virtual void DrawFramesSequence ()
+	protected virtual void DrawSpritesSequence ()
 	{
-		MyFramesSequence = EditorGUILayout.ObjectField ("Frames Sequence", MyAnimatedSprite.FramesSequence, typeof(AnimationSequence), false) as AnimationSequence;
+		MySpritesSequence = EditorGUILayout.ObjectField ("Sprites Sequence", MyAnimatedSprite.SpritesSequence, typeof(AnimationSequence), false) as AnimationSequence;
 	}
 	
 	protected virtual void DrawSpeed ()

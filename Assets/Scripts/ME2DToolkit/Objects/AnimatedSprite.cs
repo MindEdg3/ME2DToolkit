@@ -6,16 +6,16 @@ public class AnimatedSprite : MESprite
 	#region Fields
 	[HideInInspector]
 	[SerializeField]
-	public AnimationSequence _framesSequence;
+	public AnimationSequence _spritesSequence;
 	[HideInInspector]
 	[SerializeField]
 	public float _speed = 1.0f;
 	[HideInInspector]
 	[SerializeField]
-	public float lastTimeFrameChanged;
+	public float lastTimeSpriteChanged;
 	[HideInInspector]
 	[SerializeField]
-	public int frameIndex;
+	public int spriteIndex;
 	#endregion
 	
 	#region Properties
@@ -27,7 +27,7 @@ public class AnimatedSprite : MESprite
 	/// </value>
 	public bool IsAnimationEnded {
 		get {
-			return frameIndex == FramesSequence.frames.Count - 1;
+			return spriteIndex == SpritesSequence.sprites.Count - 1;
 		}
 	}
 	
@@ -37,13 +37,13 @@ public class AnimatedSprite : MESprite
 	/// <value>
 	/// Frames sequence of animation.
 	/// </value>
-	public AnimationSequence FramesSequence {
+	public AnimationSequence SpritesSequence {
 		get {
-			return _framesSequence;
+			return _spritesSequence;
 		}
 		set {
-			if (_framesSequence != value) {
-				_framesSequence = value;
+			if (_spritesSequence != value) {
+				_spritesSequence = value;
 				isNeedToRefresh = true;
 			}
 		}
@@ -71,26 +71,26 @@ public class AnimatedSprite : MESprite
 	public virtual void Update ()
 	{
 		if (Application.isPlaying) {
-			if ((lastTimeFrameChanged + 1 / Speed / FramesSequence.speed / FramesSequence.frames [frameIndex].speed) < Time.time) {
+			if ((lastTimeSpriteChanged + 1 / Speed / SpritesSequence.speed / SpritesSequence.sprites [spriteIndex].speed) < Time.time) {
 				// switch to next frame.
-				frameIndex++;
-				if (frameIndex >= FramesSequence.frames.Count) {
-					frameIndex = 0;
+				spriteIndex++;
+				if (spriteIndex >= SpritesSequence.sprites.Count) {
+					spriteIndex = 0;
 				}
-				lastTimeFrameChanged = Time.time;
-				RefreshAnimatedFrame ();
+				lastTimeSpriteChanged = Time.time;
+				RefreshAnimatedSprite ();
 			
 				isNeedToRefresh = true;
 			}
 		}
 	}
 
-	public void RefreshAnimatedFrame ()
+	public void RefreshAnimatedSprite ()
 	{
-		AnimFrame currentFrame = FramesSequence.frames [frameIndex];
-		if (!currentFrame.framesMap.Equals (MyFramesMap)) {
-			MyFramesMap = currentFrame.framesMap;
+		AnimSprite currentSprite = SpritesSequence.sprites [spriteIndex];
+		if (!currentSprite.spritesAtlas.Equals (MySpritesAtlas)) {
+			MySpritesAtlas = currentSprite.spritesAtlas;
 		}
-		FrameName = currentFrame.frameName;
+		SpriteName = currentSprite.spriteName;
 	}
 }

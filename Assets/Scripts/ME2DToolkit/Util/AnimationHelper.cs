@@ -31,15 +31,15 @@ public class AnimationHelper : MonoBehaviour
 	void LoadAnimations ()
 	{
 		for (int i = 0; i < clipResources.Count; i++) {
-			FramesMap newFramesMap = new GameObject ("frames_" + clipResources [i].name, typeof(FramesMap)).GetComponent<FramesMap> ();
-			newFramesMap.clipName = clipResources [i].name;
+			SpriteAtlas newFramesMap = new GameObject ("frames_" + clipResources [i].name, typeof(SpriteAtlas)).GetComponent<SpriteAtlas> ();
+//			newFramesMap.clipName = clipResources [i].name;
 			newFramesMap.atlas = clipResources [i].atlas;
 			newFramesMap.spriteBounds = ReadXML (clipResources [i].textureAtlasFrames);
 			
 			AnimationSequence newSequence = new GameObject ("sequence_" + clipResources [i].name, typeof(AnimationSequence)).GetComponent<AnimationSequence> ();
 			//newSequence.framesMap = newFramesMap;
 			for (int j = 0; j < newFramesMap.spriteBounds.Count; j++) {
-				newSequence.frames.Add (new AnimFrame (newFramesMap, newFramesMap.spriteBounds [j].name, 1f));
+				newSequence.sprites.Add (new AnimSprite (newFramesMap, newFramesMap.spriteBounds [j].name, 1f));
 			}
 		}
 	}
@@ -96,92 +96,4 @@ public class AnimationClipResource
 	public string name = "New Clip";
 	public Material atlas;
 	public TextAsset textureAtlasFrames;
-}
-
-/// <summary>
-/// Sprite bounds, that primarilly used to keep information about scale and offset of texture. Also keeps it's name and size ratio.
-/// </summary>
-[Serializable]
-public class SpriteBounds
-{
-	public string name;
-	public Vector2 textureOffset = Vector2.zero;
-	public Vector2 textureScale = Vector2.zero;
-	public float spriteSizeRatio = 1f;
-	
-	private SpriteBounds ()
-	{
-	}
-	
-	/// <summary>
-	/// Initializes a new instance of the <see cref="SpriteBounds"/> class.
-	/// </summary>
-	/// <param name='name'>
-	/// Sprite name.
-	/// </param>
-	/// <param name='offset'>
-	/// Sprite offset.
-	/// </param>
-	/// <param name='scale'>
-	/// Sprite scale.
-	/// </param>
-	/// <param name='spriteSizeRatio'>
-	/// Sprite size ratio from 1024x1024 pixels.
-	/// </param>
-	public SpriteBounds (string name, Vector2 offset, Vector2 scale, float spriteSizeRatio)
-	{
-		this.name = name;
-		this.textureOffset = offset;
-		this.textureScale = scale;
-		this.spriteSizeRatio = spriteSizeRatio;
-	}
-	
-	/// <summary>
-	/// Serves as a hash function for a <see cref="SpriteBounds"/> object.
-	/// </summary>
-	/// <returns>
-	/// A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.
-	/// </returns>
-	public override int GetHashCode ()
-	{
-		return base.GetHashCode ();
-	}
-	
-	/// <summary>
-	/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="SpriteBounds"/>.
-	/// </summary>
-	/// <param name='other'>
-	/// The <see cref="System.Object"/> to compare with the current <see cref="SpriteBounds"/>.
-	/// </param>
-	/// <returns>
-	/// <c>true</c> if the specified <see cref="System.Object"/> is equal to the current <see cref="SpriteBounds"/>;
-	/// otherwise, <c>false</c>.
-	/// </returns>
-	public override bool Equals (object other)
-	{
-		SpriteBounds otherSB;
-		
-		otherSB = other as SpriteBounds;
-		
-		if (otherSB == null) {
-			return false;
-		} else {
-			return Equals (otherSB);
-		}
-	}
-	
-	/// <summary>
-	/// Determines whether the specified <see cref="SpriteBounds"/> is equal to the current <see cref="SpriteBounds"/>.
-	/// </summary>
-	/// <param name='otherSB'>
-	/// The <see cref="SpriteBounds"/> to compare with the current <see cref="SpriteBounds"/>.
-	/// </param>
-	/// <returns>
-	/// <c>true</c> if the specified <see cref="SpriteBounds"/> is equal to the current <see cref="SpriteBounds"/>;
-	/// otherwise, <c>false</c>.
-	/// </returns>
-	public bool Equals (SpriteBounds otherSB)
-	{
-		return (otherSB.name.Equals (name)) && (this.textureOffset.Equals (otherSB.textureOffset)) && (textureScale.Equals (otherSB.textureScale)) && (spriteSizeRatio.Equals (spriteSizeRatio));
-	}
 }

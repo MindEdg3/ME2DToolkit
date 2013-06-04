@@ -5,20 +5,20 @@ using UnityEngine;
 public class AnimationSequence : MonoBehaviour
 {
 	public float speed = 1f;
-	public List<AnimFrame> frames = new List<AnimFrame> ();
+	public List<AnimSprite> sprites = new List<AnimSprite> ();
 }
 
 [Serializable]
-public class AnimFrame
+public class AnimSprite
 {	
-	public FramesMap framesMap;
-	public string frameName;
+	public SpriteAtlas spritesAtlas;
+	public string spriteName;
 	public float speed = 1f;
 	
-	public AnimFrame (FramesMap framesMap, string frameName, float speed)
+	public AnimSprite (SpriteAtlas spritesAtlas, string spriteName, float speed)
 	{
-		this.framesMap = framesMap;
-		this.frameName = frameName;
+		this.spritesAtlas = spritesAtlas;
+		this.spriteName = spriteName;
 		this.speed = speed;
 	}
 }

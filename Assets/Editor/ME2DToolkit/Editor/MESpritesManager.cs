@@ -11,7 +11,7 @@ public class MESpritesManager : EditorWindow
 	private SpriteVerticalAlignment verticalSpriteAlignment;
 	private float scale = 1f;
 	private float speed = 1f;
-	private FramesMap framesMap;
+	private SpriteAtlas framesMap;
 	private int selectedFrameNameIndex;
 	private string frameName;
 	private Texture2D atlas;
@@ -87,7 +87,7 @@ public class MESpritesManager : EditorWindow
 	#region GUI elements
 	private void DrawFrameMap ()
 	{
-		framesMap = EditorGUILayout.ObjectField ("Frame Map", framesMap, typeof(FramesMap), false) as FramesMap;
+		framesMap = EditorGUILayout.ObjectField ("Frame Map", framesMap, typeof(SpriteAtlas), false) as SpriteAtlas;
 	}
 	
 	private void DrawFrameName ()
@@ -151,8 +151,8 @@ public class MESpritesManager : EditorWindow
 			newGO.name = "Simple 2D Sprite";
 			MESprite newSS = newGO.AddComponent<MESprite> ();
 			newSS.RenderTarget = graphics;
-			newSS.MyFramesMap = framesMap;
-			newSS.FrameName = frameName;
+			newSS.MySpritesAtlas = framesMap;
+			newSS.SpriteName = frameName;
 			newSS.HorizontalSpriteAlignment = horizontalSpriteAlignment;
 			newSS.VerticalSpriteAlignment = verticalSpriteAlignment;
 			newSS.Scale = scale;
@@ -161,12 +161,12 @@ public class MESpritesManager : EditorWindow
 			newGO.name = "Animated Sprite";
 			AnimatedSprite newAS = newGO.AddComponent<AnimatedSprite> ();
 			newAS.RenderTarget = graphics;
-			newAS.MyFramesMap = framesMap;
+			newAS.MySpritesAtlas = framesMap;
 			newAS.HorizontalSpriteAlignment = horizontalSpriteAlignment;
 			newAS.VerticalSpriteAlignment = verticalSpriteAlignment;
 			newAS.Scale = scale;
 			newAS.Speed = speed;
-			newAS.FramesSequence = framesSequence;
+			newAS.SpritesSequence = framesSequence;
 			break;
 		}
 		

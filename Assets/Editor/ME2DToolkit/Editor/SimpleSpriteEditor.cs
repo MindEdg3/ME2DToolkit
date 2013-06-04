@@ -10,8 +10,8 @@ using System.Collections;
 public class SimpleSpriteEditor : Editor
 {
 	protected bool isNeedToRefresh = false;
-	protected int selectedFrameIndex;
-	protected SpriteBounds _frameBoundaries;
+	protected int selectedSpriteIndex;
+	protected SpriteBounds _spriteBoundaries;
 	protected MESprite _mySprite;
 	
 	#region Properties
@@ -32,23 +32,23 @@ public class SimpleSpriteEditor : Editor
 	}
 	
 	/// <summary>
-	/// Gets or sets the frame boundaries.
+	/// Gets or sets the sprite boundaries.
 	/// </summary>
 	/// <value>
-	/// The frame boundaries.
+	/// The sprite boundaries.
 	/// </value>
-	protected SpriteBounds FrameBoundaries {
+	protected SpriteBounds SpriteBoundaries {
 		get {
-			if (_frameBoundaries == null) {
-				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
-				if (_frameBoundaries == null) {
-					_frameBoundaries = MyFramesMap.spriteBounds [0];
+			if (_spriteBoundaries == null) {
+				_spriteBoundaries = MySpritesAtlas.spriteBounds.Find (sb => sb.name == SpriteName);
+				if (_spriteBoundaries == null) {
+					_spriteBoundaries = MySpritesAtlas.spriteBounds [0];
 				}	
 			}
-			return _frameBoundaries;
+			return _spriteBoundaries;
 		}
 		set {
-			_frameBoundaries = value;
+			_spriteBoundaries = value;
 		}
 	}
 	
@@ -80,35 +80,35 @@ public class SimpleSpriteEditor : Editor
 		}
 	}
 	
-	protected FramesMap MyFramesMap {
+	protected SpriteAtlas MySpritesAtlas {
 		get {
-			return MySprite.MyFramesMap;
+			return MySprite.MySpritesAtlas;
 		}
 		set {
-			if (MySprite.MyFramesMap != value) {
-				Undo.RegisterUndo (MySprite, "Sprite frame map change");
+			if (MySprite.MySpritesAtlas != value) {
+				Undo.RegisterUndo (MySprite, "Sprite atlas change");
 				
-				MySprite.MyFramesMap = value;
-				if (MySprite.MyFramesMap == null) {
-					FrameBoundaries = null;
+				MySprite.MySpritesAtlas = value;
+				if (MySprite.MySpritesAtlas == null) {
+					SpriteBoundaries = null;
 				} else {
-					_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
+					_spriteBoundaries = MySpritesAtlas.spriteBounds.Find (sb => sb.name == SpriteName);
 				}
 				isNeedToRefresh = true;
 			}
 		}
 	}
 	
-	protected string FrameName {
+	protected string SpriteName {
 		get {
-			return MySprite.FrameName;
+			return MySprite.SpriteName;
 		}
 		set {
-			if (!MySprite.FrameName.Equals (value)) {
-				Undo.RegisterUndo (MySprite, "Sprite frame name change");
+			if (!MySprite.SpriteName.Equals (value)) {
+				Undo.RegisterUndo (MySprite, "Sprite name change");
 				
-				MySprite.FrameName = value;
-				_frameBoundaries = MyFramesMap.spriteBounds.Find (sb => sb.name == FrameName);
+				MySprite.SpriteName = value;
+				_spriteBoundaries = MySpritesAtlas.spriteBounds.Find (sb => sb.name == SpriteName);
 				isNeedToRefresh = true;
 			}
 		}
@@ -134,14 +134,14 @@ public class SimpleSpriteEditor : Editor
 	/// </summary>/
 	public override void OnInspectorGUI ()
 	{
-		DrawFramesMap ();
+		DrawSpriteAtlas ();
 		
-		if (MyFramesMap != null) {
-			DrawFrameName ();
+		if (MySpritesAtlas != null) {
+			DrawSpriteName ();
 			DrawScale ();
 			DrawAlignment ();
 			DrawBakeScaleBtn ();
-			DrawImagePreview ();
+			DrawSpritePreview ();
 		}
 
 		if (Event.current.type == EventType.ValidateCommand) {
@@ -159,22 +159,22 @@ public class SimpleSpriteEditor : Editor
 		}
 	}
 	
-	protected virtual void DrawFramesMap ()
+	protected virtual void DrawSpriteAtlas ()
 	{
-		MyFramesMap = EditorGUILayout.ObjectField ("Frame Map", MyFramesMap, typeof(FramesMap), false) as FramesMap;
+		MySpritesAtlas = EditorGUILayout.ObjectField ("Sprite Atlas", MySpritesAtlas, typeof(SpriteAtlas), false) as SpriteAtlas;
 	}
 
-	protected virtual void DrawFrameName ()
+	protected virtual void DrawSpriteName ()
 	{
-		string[] frameNames = new string[MyFramesMap.spriteBounds.Count];
-		for (int i = 0; i< frameNames.Length; i++) {
-			frameNames [i] = MyFramesMap.spriteBounds [i].name;
-			if (frameNames [i].Equals (FrameName)) {
-				selectedFrameIndex = i;
+		string[] spriteNames = new string[MySpritesAtlas.spriteBounds.Count];
+		for (int i = 0; i< spriteNames.Length; i++) {
+			spriteNames [i] = MySpritesAtlas.spriteBounds [i].name;
+			if (spriteNames [i].Equals (SpriteName)) {
+				selectedSpriteIndex = i;
 			}
 		}
-		selectedFrameIndex = EditorGUILayout.Popup ("Frame Name", selectedFrameIndex, frameNames);
-		FrameName = MyFramesMap.spriteBounds [selectedFrameIndex].name;
+		selectedSpriteIndex = EditorGUILayout.Popup ("Sprite Name", selectedSpriteIndex, spriteNames);
+		SpriteName = MySpritesAtlas.spriteBounds [selectedSpriteIndex].name;
 	}
 	
 	protected virtual void DrawScale ()
@@ -195,36 +195,38 @@ public class SimpleSpriteEditor : Editor
 		}
 	}
 
-	protected virtual void DrawImagePreview ()
+	protected virtual void DrawSpritePreview ()
 	{
 		Rect rect = GUILayoutUtility.GetLastRect ();
-		GUILayout.Space (rect.yMin + 30f + (Screen.width - 32f) * FrameBoundaries.textureScale.y / FrameBoundaries.textureScale.x);
-			
-		GUI.DrawTextureWithTexCoords (
-			new Rect (
-				16f,
-				rect.yMin + 24f,
-				Screen.width - 32f,
-				(Screen.width - 32f) * FrameBoundaries.textureScale.y / FrameBoundaries.textureScale.x
-			),
-			MyFramesMap.atlas.mainTexture,
-			new Rect (
-				FrameBoundaries.textureOffset.x,
-				FrameBoundaries.textureOffset.y,
-				FrameBoundaries.textureScale.x,
-				FrameBoundaries.textureScale.y
-			)
-		);
-		EditorGUI.DropShadowLabel (
-			new Rect (
-					0f,
-					rect.yMin + 30f + (Screen.width - 32f) * FrameBoundaries.textureScale.y / FrameBoundaries.textureScale.x,
-					Screen.width,
-					24f
-			),
-			FrameName + "\n" + 
-			MyFramesMap.atlas.mainTexture.width * FrameBoundaries.textureScale.x + "x" + 
-			MyFramesMap.atlas.mainTexture.height * FrameBoundaries.textureScale.y
-		);
+		if (SpriteBoundaries.textureTiling.x != 0) {
+			GUILayout.Space (rect.yMin + 30f + (Screen.width - 32f) * SpriteBoundaries.textureTiling.y / SpriteBoundaries.textureTiling.x);
+		
+			GUI.DrawTextureWithTexCoords (
+				new Rect (
+					16f,
+					rect.yMin + 24f,
+					Screen.width - 32f,
+					(Screen.width - 32f) * SpriteBoundaries.textureTiling.y / SpriteBoundaries.textureTiling.x
+				),
+				MySpritesAtlas.atlas.mainTexture,
+				new Rect (
+					SpriteBoundaries.textureOffset.x,
+					SpriteBoundaries.textureOffset.y,
+					SpriteBoundaries.textureTiling.x,
+					SpriteBoundaries.textureTiling.y
+				)
+			);
+			EditorGUI.DropShadowLabel (
+				new Rect (
+						0f,
+						rect.yMin + 30f + (Screen.width - 32f) * SpriteBoundaries.textureTiling.y / SpriteBoundaries.textureTiling.x,
+						Screen.width,
+						24f
+				),
+				SpriteName + "\n" + 
+				MySpritesAtlas.atlas.mainTexture.width * SpriteBoundaries.textureTiling.x + "x" + 
+				MySpritesAtlas.atlas.mainTexture.height * SpriteBoundaries.textureTiling.y
+			);
+		}
 	}
 }
