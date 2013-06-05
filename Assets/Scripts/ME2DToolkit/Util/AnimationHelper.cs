@@ -57,20 +57,21 @@ public class AnimationHelper : MonoBehaviour
 				if (reader.NodeType == XmlNodeType.Element && reader.Name == "TextureAtlas") {
 					Vector2 atlasSize = new Vector2 (
 						int.Parse (reader.GetAttribute ("width")),
-						int.Parse (reader.GetAttribute ("height")));
+						int.Parse (reader.GetAttribute ("height"))
+					);
 					
 					while (reader.Read() && reader.Name == "sprite") {
+						float textureXOffset = float.Parse (reader.GetAttribute ("x")) / atlasSize.x;
+						float textureYOffset = (-float.Parse (reader.GetAttribute ("y")) - float.Parse (reader.GetAttribute ("h"))) / atlasSize.y;
 						float textureXScale = float.Parse (reader.GetAttribute ("w")) / atlasSize.x;
 						float textureYScale = float.Parse (reader.GetAttribute ("h")) / atlasSize.y;
-						float textureXOffset = float.Parse (reader.GetAttribute ("x")) / atlasSize.x;
-						float textureYOffset = (1 - float.Parse (reader.GetAttribute ("y")) - float.Parse (reader.GetAttribute ("h"))) / atlasSize.y;
 						
 						SpriteBounds newBounds = new SpriteBounds (
 							reader.GetAttribute ("n"),
 							new Vector2 (textureXOffset, textureYOffset),
 							new Vector2 (textureXScale, textureYScale),
 							atlasSize.x / 1024
-							);
+						);
 						
 						spritesBounds.Add (newBounds);
 					}

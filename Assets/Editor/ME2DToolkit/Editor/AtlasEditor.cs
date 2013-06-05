@@ -51,6 +51,49 @@ public class AtlasEditor : Editor
 		}
 	}
 
+	private Vector2 CurrentSpriteTextureOffsetPixels {
+		set {
+			SpriteBounds currentSprite = MySpriteAtlas.spriteBounds [_selectedSprite];
+			
+			Vector2 resultVector = new Vector2 (
+				value.x / MySpriteAtlas.atlas.mainTexture.width,
+				value.y / MySpriteAtlas.atlas.mainTexture.height
+			);
+			
+			if (currentSprite.textureOffset != resultVector) {
+				currentSprite.textureOffset = resultVector;
+			}
+		}
+		get {
+
+			return new Vector2 (
+				MySpriteAtlas.atlas.mainTexture.width * MySpriteAtlas.spriteBounds [_selectedSprite].textureOffset.x,
+				MySpriteAtlas.atlas.mainTexture.height * MySpriteAtlas.spriteBounds [_selectedSprite].textureOffset.y
+			);
+		}
+	}
+
+	private Vector2 CurrentSpriteTextureScalePixels {
+		set {
+			SpriteBounds currentSprite = MySpriteAtlas.spriteBounds [_selectedSprite];
+			
+			Vector2 resultVector = new Vector2 (
+				value.x / MySpriteAtlas.atlas.mainTexture.width,
+				value.y / MySpriteAtlas.atlas.mainTexture.height
+			);
+			
+			if (currentSprite.textureTiling != resultVector) {
+				currentSprite.textureTiling = resultVector;
+			}
+		}
+		get {
+			return new Vector2 (
+				MySpriteAtlas.atlas.mainTexture.width * MySpriteAtlas.spriteBounds [_selectedSprite].textureTiling.x,
+				MySpriteAtlas.atlas.mainTexture.height * MySpriteAtlas.spriteBounds [_selectedSprite].textureTiling.y
+			);
+		}
+	}
+
 	private float CurrentSpriteScale {
 		set {
 			SpriteBounds currentSprite = MySpriteAtlas.spriteBounds [_selectedSprite];
@@ -116,8 +159,19 @@ public class AtlasEditor : Editor
 	void DrawSpriteProperties ()
 	{
 		CurrentSpriteName = EditorGUILayout.TextField ("Name", CurrentSpriteName);
-		CurrentSpriteTextureOffset = EditorGUILayout.Vector2Field ("Texture offset", CurrentSpriteTextureOffset);
-		CurrentSpriteTextureScale = EditorGUILayout.Vector2Field ("Texture scale", CurrentSpriteTextureScale);
+		
+		MEEditorTools.texCoords = (TextureCoordsView)EditorGUILayout.EnumPopup ("Texture Coordinates", MEEditorTools.texCoords);
+		
+		switch (MEEditorTools.texCoords) {
+		case TextureCoordsView.Pixels:
+			CurrentSpriteTextureOffsetPixels = EditorGUILayout.Vector2Field ("Texture offset", CurrentSpriteTextureOffsetPixels);
+			CurrentSpriteTextureScalePixels = EditorGUILayout.Vector2Field ("Texture scale", CurrentSpriteTextureScalePixels);
+			break;
+		case TextureCoordsView.TexCoords:
+			CurrentSpriteTextureOffset = EditorGUILayout.Vector2Field ("Texture offset", CurrentSpriteTextureOffset);
+			CurrentSpriteTextureScale = EditorGUILayout.Vector2Field ("Texture scale", CurrentSpriteTextureScale);
+			break;
+		}
 		CurrentSpriteScale = EditorGUILayout.FloatField ("Scale", CurrentSpriteScale);
 	}
 
@@ -195,4 +249,10 @@ public class AtlasEditor : Editor
 			}
 		}
 	}
+}
+
+public enum TextureCoordsView
+{
+	TexCoords,
+	Pixels
 }

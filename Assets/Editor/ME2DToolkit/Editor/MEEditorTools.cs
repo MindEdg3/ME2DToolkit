@@ -6,6 +6,8 @@ public class MEEditorTools
 {
 #region Settings
 	[SerializeField]
+	public static TextureCoordsView texCoords = TextureCoordsView.TexCoords;
+	[SerializeField]
 	public static bool isToDrawPreview = true;
 	[SerializeField]
 	public static bool isToDrawPreviewBG = true;
@@ -15,6 +17,7 @@ public class MEEditorTools
 	public static Color checkersColor1 = Color.white;
 	[SerializeField]
 	public static Color checkersColor2 = Color.grey;
+	
 #endregion
 	
 	static Texture2D mWhiteTex;
