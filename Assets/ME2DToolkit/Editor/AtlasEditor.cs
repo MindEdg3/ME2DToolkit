@@ -133,7 +133,10 @@ public class AtlasEditor : Editor
 	
 	public override void OnInspectorGUI ()
 	{
-		if (MySpriteAtlas.spriteBounds.Count > 0) {
+		MySpriteAtlas.atlas = EditorGUILayout.ObjectField ("Sprite Atlas Material", MySpriteAtlas.atlas, typeof(Material), false) as Material;
+
+		
+		if (MySpriteAtlas.atlas != null && MySpriteAtlas.spriteBounds.Count > 0) {
 			DrawSpriteEditor ();
 			DrawSpritePreview ();
 		} else {

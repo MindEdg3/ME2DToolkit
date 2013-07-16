@@ -140,7 +140,11 @@ public class MESpritesManager : EditorWindow
 	{
 		GameObject newGO = new GameObject ();
 		MeshRenderer graphics;
+#if UNITY_4_0
+		newGO.SetActive(false);
+#else
 		newGO.active = false;
+#endif
 		graphics = newGO.AddComponent<MeshRenderer> ();
 		newGO.AddComponent<MeshFilter> ();
 		graphics.castShadows = false;
@@ -172,7 +176,11 @@ public class MESpritesManager : EditorWindow
 		
 		errorMessage = "";
 		Selection.activeGameObject = newGO;
+#if UNITY_4_0
+		newGO.SetActive(true);
+#else
 		newGO.active = true;
+#endif
 		Undo.RegisterCreatedObjectUndo (newGO, "Adding New Sprite");
 	}
 	
